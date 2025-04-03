@@ -32,7 +32,7 @@ TrieNode* createNode();
 void insertWord(TrieNode* root, const char* word, int frequency);
 char* completeWord(TrieNode* root, const char* prefix);
 
-void readFileCommands(FILE* input, FILE* output, TrieNode* head);
+void readCommands(TrieNode* head);
 
 
 int main(int argc, char** argv){
@@ -40,23 +40,7 @@ int main(int argc, char** argv){
     // Create Root Node
     TrieNode* root = createNode();
 
-    // Creates and opens input and output files
-    FILE* input;
-    FILE* output;
-
-    input = fopen("predict_input.txt", "r");
-    output = fopen("output.txt", "w");
-
-    // Insures input exits
-    if(input == NULL){
-        printf("File not found\n");
-        return 0;
-    }
-
-    readFileCommands(input, output, root);
-
-    fclose(input);
-    fclose(output);
+    readCommands(root);
 }
 
 TrieNode* createNode(){
@@ -126,39 +110,38 @@ char* completeWord(TrieNode* root, const char* prefix){
     return currentNode->commonWord;
 }
 
-void readFileCommands(FILE* input, FILE* output, TrieNode* root){
+void readCommands(TrieNode* root){
+
+    // Gets the first character in the input
+    int numOfCommands;
+    scanf("%d", &numOfCommands);
 
     // Does a number of commands equal to the first number in the file
-    int numOfCommands = fgetc(input) - '0';
-    fgetc(input); // skips the file reader over the new line key
     for(int x = 0; x < numOfCommands; x++){
 
-        // Create temporary variables to place from fscanf
+        // Create temporary variables to place from scanf
         char* inputWord = (char*) malloc(sizeof(char) * MAX_WORD_COUNT);
-        char* inputPrefix = (char*) malloc(sizeof(char) * MAX_WORD_COUNT);
         int inputFrequency;
 
+        getchar(); // Ignore the next newline or space character
+
         // Gets the first number in the line to determine which command to execute
-        switch(fgetc(input)){
+        switch(getchar()){
             case '1':
-            printf("Go 1\n");
-            // Extracting the word and frequency from the input file
-            fscanf(input, " %s %d\n", inputWord, &inputFrequency);
-            // Inserts the word from the file into the Trie
+            scanf("%s %d", inputWord, &inputFrequency);
+            // Inserts the word into the Trie
             insertWord(root, inputWord, inputFrequency);
             break;
             
             case '2':
-            printf("Go 2\n");
-            // Extracting the prefix from the input file
-            fscanf(input, " %s\n", inputPrefix);
-            // Prints the guessed word to the output file
-            fprintf(output, "%s\n", completeWord(root, inputPrefix));
+            scanf("%s", inputWord);
+            // Prints the guessed word
+            printf("%s\n", completeWord(root, inputWord));
             break;
         }
 
         // Frees inputWord after use
         free(inputWord);
-        free(inputPrefix);
+        printf("X = %d\n", x);
     }
 }
